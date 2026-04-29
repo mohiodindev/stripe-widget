@@ -1,0 +1,19 @@
+{
+  "name": "stripe-donation-widget",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Embeddable Stripe donation widget with customization portal",
+  "workspaces": [
+    "backend",
+    "portal",
+    "widget"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:portal": "npm run dev --workspace=portal",
+    "dev:widget": "npm run dev --workspace=widget",
+    "build:portal": "npm run build --workspace=portal",
+    "build:widget": "npm run build --workspace=widget",
+    "lint": "npm run lint --workspace=backend && npm run lint --workspace=portal"
+  }
+}

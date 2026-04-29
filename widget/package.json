@@ -1,0 +1,12 @@
+{
+  "name": "donate-widget",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "build": "cp src/donate-widget.js dist/donate-widget.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

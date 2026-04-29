@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DonateWidget - Demo</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      line-height: 1.6;
+    }
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      padding: 4rem 1rem;
+    }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.1rem; opacity: 0.9; max-width: 600px; margin: 0 auto 2rem; }
+    .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+    .section { margin-bottom: 3rem; }
+    .section h2 { margin-bottom: 1rem; font-size: 1.5rem; }
+    .section p { color: #64748b; margin-bottom: 1rem; }
+    .demo-box {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+      text-align: center;
+    }
+    .demo-box p { margin-bottom: 1.5rem; }
+    .demo-box h3 { margin-bottom: 0.5rem; }
+    #widget-container-1, #widget-container-2 { display: inline-block; }
+    .inline-btn {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .inline-btn:hover { opacity: 0.9; }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 1.75rem; }
+      .hero { padding: 3rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <h1>DonateWidget Demo</h1>
+    <p>A beautiful, embeddable donation widget powered by Stripe. Click the buttons below to see it in action.</p>
+    <div id="widget-container-1"></div>
+  </div>
+
+  <div class="container">
+    <div class="section">
+      <h2>Embedded Widget</h2>
+      <p>This widget is rendered using <code>DonateWidget.init()</code> — just add a container and the script.</p>
+      <div class="demo-box">
+        <h3>Support This Project</h3>
+        <p>Your donation helps us continue our work.</p>
+        <div id="widget-container-2"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Popup Only (Inline Button)</h2>
+      <p>Use <code>DonateWidget.open()</code> to trigger the popup from any button or element.</p>
+      <div class="demo-box">
+        <button class="inline-btn" id="popup-btn">
+          Open Donation Popup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/donate-widget.js"></script>
+  <script>
+    // Replace with your actual widget ID after creating one in the portal
+    var WIDGET_ID = 'YOUR_WIDGET_ID';
+    var API_URL = 'http://localhost:3001';
+
+    // Embedded widget
+    DonateWidget.init({
+      widgetId: WIDGET_ID,
+      apiUrl: API_URL,
+      container: '#widget-container-1'
+    });
+
+    DonateWidget.init({
+      widgetId: WIDGET_ID,
+      apiUrl: API_URL,
+      container: '#widget-container-2'
+    });
+
+    // Popup only
+    document.getElementById('popup-btn').addEventListener('click', function() {
+      DonateWidget.open({
+        widgetId: WIDGET_ID,
+        apiUrl: API_URL
+      });
+    });
+  </script>
+</body>
+</html>
