@@ -31,6 +31,7 @@ db.exec(`
     user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name TEXT NOT NULL DEFAULT 'My Widget',
     primary_color TEXT DEFAULT '#6366f1',
+    secondary_color TEXT DEFAULT '#8b5cf6',
     button_text TEXT DEFAULT 'Donate',
     title TEXT DEFAULT 'Support Our Cause',
     description TEXT DEFAULT 'Your contribution makes a difference.',
@@ -44,6 +45,14 @@ db.exec(`
     button_size TEXT DEFAULT 'medium',
     show_branding INTEGER DEFAULT 1,
     is_active INTEGER DEFAULT 1,
+    header_style TEXT DEFAULT 'gradient',
+    font_family TEXT DEFAULT 'system',
+    header_image_url TEXT DEFAULT '',
+    enable_google_pay INTEGER DEFAULT 1,
+    enable_apple_pay INTEGER DEFAULT 1,
+    enable_recurring INTEGER DEFAULT 0,
+    show_donor_wall INTEGER DEFAULT 0,
+    thank_you_style TEXT DEFAULT 'confetti',
     created_at TEXT DEFAULT (datetime('now')),
     updated_at TEXT DEFAULT (datetime('now'))
   );

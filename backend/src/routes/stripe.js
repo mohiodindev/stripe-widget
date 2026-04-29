@@ -96,8 +96,17 @@ router.post('/checkout', async (req, res) => {
     }
 
     const stripe = getStripe();
+
+    // Build payment method types based on widget config
+    const paymentMethods = ['card'];
+    if (widget.enable_google_pay || widget.enable_apple_pay) {
+      // Stripe Checkout automatically enables Google Pay and Apple Pay
+      // when the 'card' payment method is included — no separate types needed.
+      // The wallets appear based on browser/device support.
+    }
+
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: paymentMethods,
       mode: 'payment',
       line_items: [{
         price_data: {
@@ -135,6 +144,55 @@ router.post('/checkout', async (req, res) => {
   } catch (err) {
     console.error('Checkout error:', err);
     res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+// Create payment intent (for Google Pay / Apple Pay via Payment Request API)
+router.post('/payment-intent', async (req, res) => {
+  try {
+    const { widgetId, amount, currency, donorEmail, donorName } = req.body;
+
+    if (!widgetId || !amount) {
+      return res.status(400).json({ error: 'Widget ID and amount are required' });
+    }
+
+    const widget = db.prepare('SELECT * FROM widgets WHERE id = ? AND is_active = 1').get(widgetId);
+    if (!widget) {
+      return res.status(404).json({ error: 'Widget not found or inactive' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(widget.user_id);
+    if (!user || !user.stripe_account_id || !user.stripe_onboarded) {
+      return res.status(400).json({ error: 'Organization has not completed Stripe setup' });
+    }
+
+    const amountCents = Math.round(amount * 100);
+    const stripe = getStripe();
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountCents,
+      currency: currency || widget.currency,
+      payment_method_types: ['card'],
+      metadata: {
+        widgetId,
+        userId: user.id,
+        donorName: donorName || '',
+        donorEmail: donorEmail || ''
+      }
+    }, {
+      stripeAccount: user.stripe_account_id
+    });
+
+    const { v4: uuidv4 } = require('uuid');
+    const donationId = uuidv4();
+    db.prepare(
+      `INSERT INTO donations (id, widget_id, user_id, amount, currency, donor_email, donor_name, stripe_payment_intent, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')`
+    ).run(donationId, widgetId, user.id, amountCents, currency || widget.currency, donorEmail || null, donorName || null, paymentIntent.id);
+
+    res.json({ clientSecret: paymentIntent.client_secret, stripeAccount: user.stripe_account_id });
+  } catch (err) {
+    console.error('Payment intent error:', err);
+    res.status(500).json({ error: 'Failed to create payment intent' });
   }
 });
 

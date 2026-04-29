@@ -23,9 +23,11 @@ router.get('/:id', authenticate, (req, res) => {
 // Get widget config (public - for embed)
 router.get('/:id/public', (req, res) => {
   const widget = db.prepare(
-    `SELECT w.id, w.name, w.primary_color, w.button_text, w.title, w.description,
+    `SELECT w.id, w.name, w.primary_color, w.secondary_color, w.button_text, w.title, w.description,
             w.currency, w.preset_amounts, w.allow_custom_amount, w.min_amount, w.max_amount,
             w.success_message, w.button_style, w.button_size, w.show_branding, w.is_active,
+            w.header_style, w.font_family, w.header_image_url, w.enable_google_pay,
+            w.enable_apple_pay, w.enable_recurring, w.thank_you_style,
             u.org_name, u.stripe_onboarded
      FROM widgets w JOIN users u ON w.user_id = u.id
      WHERE w.id = ? AND w.is_active = 1`
@@ -76,9 +78,11 @@ router.put('/:id', authenticate, (req, res) => {
     return res.status(404).json({ error: 'Widget not found' });
   }
 
-  const fields = ['name', 'primary_color', 'button_text', 'title', 'description', 'currency',
+  const fields = ['name', 'primary_color', 'secondary_color', 'button_text', 'title', 'description', 'currency',
     'preset_amounts', 'allow_custom_amount', 'min_amount', 'max_amount', 'success_message',
-    'button_style', 'button_size', 'show_branding', 'is_active'];
+    'button_style', 'button_size', 'show_branding', 'is_active',
+    'header_style', 'font_family', 'header_image_url', 'enable_google_pay',
+    'enable_apple_pay', 'enable_recurring', 'show_donor_wall', 'thank_you_style'];
 
   const updates = [];
   const values = [];
@@ -89,7 +93,7 @@ router.put('/:id', authenticate, (req, res) => {
       if (field === 'preset_amounts' && typeof value !== 'string') {
         value = JSON.stringify(value);
       }
-      if (field === 'allow_custom_amount' || field === 'show_branding' || field === 'is_active') {
+      if (['allow_custom_amount', 'show_branding', 'is_active', 'enable_google_pay', 'enable_apple_pay', 'enable_recurring', 'show_donor_wall'].includes(field)) {
         value = value ? 1 : 0;
       }
       updates.push(`${field} = ?`);
